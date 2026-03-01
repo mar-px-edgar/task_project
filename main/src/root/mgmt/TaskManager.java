@@ -1,5 +1,6 @@
 package root.mgmt;
 
+import java.io.*;
 import java.util.*;
 
 
@@ -8,21 +9,29 @@ public class TaskManager {
     // collection of tasks
     List<Task> tasks = new ArrayList<>();
     public void add() {
-        System.out.println("Название задачи: ");
-        String name = scanner.nextLine();
-        System.out.println("Приоритет (от 0 до 5): ");
-        Integer priority = Integer.parseInt(scanner.nextLine());
-        System.out.println("Статус задачи (1-not assigned, 2-assigned, 3-done");
-        int temp_status = Integer.parseInt(scanner.nextLine());
-        Status status = switch (temp_status) {
-            case 1 -> Status.NOT_ASSIGNED;
-            case 2 -> Status.ASSIGNED;
-            case 3 -> Status.FINISHED;
-            default ->
-                // if input is invalid, default to NOT_ASSIGNED
-                    Status.NOT_ASSIGNED;
-        };
-        tasks.add(new Task(name, priority, status));
+        while (true) {
+            System.out.print("Название задачи: ");
+            String name = scanner.nextLine();
+            System.out.print("Приоритет (от 0 до 5): ");
+            Integer priority = Integer.parseInt(scanner.nextLine());
+            if (!checkPriority(priority)) {
+                System.out.println("Приоритет должен быть от 0 до 5. Задача не добавлена.");
+                continue; // prompt again if priority is invalid
+            }
+            System.out.print("Статус задачи (1-not assigned, 2-assigned, 3-done): ");
+            int temp_status = Integer.parseInt(scanner.nextLine());
+            if  (temp_status == 1) {
+                tasks.add(new Task(name, priority, Status.NOT_ASSIGNED));
+            } else if (temp_status == 2) {
+                tasks.add(new Task(name, priority, Status.ASSIGNED));
+            } else if (temp_status == 3) {
+                tasks.add(new Task(name, priority, Status.FINISHED));
+            } else {
+                System.out.println("Неверный статус. Задача не добавлена.");
+                continue; // prompt again if status is invalid
+            }
+            break; // exit loop after successful addition
+        }
     }
     public void markDone() {
         System.out.println("Название задачи: ");
@@ -66,7 +75,31 @@ public class TaskManager {
         }
     }
 
-    public void saveToCsv() {
+    public void saveToCsv() throws IOException {
+        try (PrintWriter writer = new PrintWriter("tasks.csv")){
+            for (Task task : tasks) {
+                writer.println(task.getName() + "," + task.getPriority() + "," + task.getStatus());
+            }
+        }
+    }
 
+    public void loadFromCsv() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader("tasks.csv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 3) {
+                    String name = parts[0];
+                    int priority = Integer.parseInt(parts[1]);
+                    Status status = Status.valueOf(parts[2]);
+                    tasks.add(new Task(name, priority, status));
+                }
+            }
+        }
+    }
+
+
+    public boolean checkPriority(Integer priority) {
+        return priority >= 0 && priority <= 5;
     }
 }

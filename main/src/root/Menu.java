@@ -1,10 +1,11 @@
 package root;
 import root.mgmt.TaskManager;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Menu {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         TaskManager taskManager = new TaskManager();
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -41,7 +42,7 @@ public class Menu {
                     break;
                 case 6:
                     System.out.println("Загрузка...");
-                    taskManager.saveToCsv();
+                    taskManager.loadFromCsv();
                     break;
                 case 0:
                     System.out.println("Выход из программы");
@@ -53,5 +54,15 @@ public class Menu {
             System.out.println(); // пустая строка
         }
         scanner.close();
+    }
+    public static void printMenu() {
+        System.out.println("Меню:");
+        System.out.println("1. Добавить задачу");
+        System.out.println("2. Отметить задачу выполненной");
+        System.out.println("3. Показать все задачи");
+        System.out.println("4. Показать активные задачи");
+        System.out.println("5. Сохранить задачи в CSV");
+        System.out.println("6. Загрузить задачи из CSV");
+        System.out.println("0. Выйти");
     }
 }
